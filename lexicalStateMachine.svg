@@ -1,0 +1,58 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "https://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="219.5" cy="94.5" rx="30" ry="30"/>
+	<text x="209.5" y="100.5" font-family="Times New Roman" font-size="20">q0</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="523.5" cy="94.5" rx="30" ry="30"/>
+	<text x="513.5" y="100.5" font-family="Times New Roman" font-size="20">q1</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="725.5" cy="51.5" rx="30" ry="30"/>
+	<text x="704.5" y="57.5" font-family="Times New Roman" font-size="20">END</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="725.5" cy="51.5" rx="24" ry="24"/>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="776.5" cy="201.5" rx="30" ry="30"/>
+	<text x="766.5" y="207.5" font-family="Times New Roman" font-size="20">q2</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="776.5" cy="201.5" rx="24" ry="24"/>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="634.5" cy="449.5" rx="30" ry="30"/>
+	<text x="624.5" y="455.5" font-family="Times New Roman" font-size="20">q3</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="634.5" cy="449.5" rx="24" ry="24"/>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="123.5" cy="310.5" rx="30" ry="30"/>
+	<text x="113.5" y="316.5" font-family="Times New Roman" font-size="20">q4</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="123.5" cy="430.5" rx="30" ry="30"/>
+	<text x="113.5" y="436.5" font-family="Times New Roman" font-size="20">q5</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="271.5" cy="520.5" rx="30" ry="30"/>
+	<text x="261.5" y="526.5" font-family="Times New Roman" font-size="20">q6</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="271.5" cy="520.5" rx="24" ry="24"/>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="46.5" cy="94.5" rx="30" ry="30"/>
+	<text x="13.5" y="100.5" font-family="Times New Roman" font-size="20">ERROR</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="46.5" cy="94.5" rx="24" ry="24"/>
+	<path stroke="black" stroke-width="1" fill="none" d="M 223.36,64.867 A 22.5,22.5 0 1 1 245.368,79.539"/>
+	<text x="261.5" y="29.5" font-family="Times New Roman" font-size="20">isSpace(c)</text>
+	<polygon fill="black" stroke-width="1" points="245.368,79.539 254.606,81.452 251.136,72.074"/>
+	<polygon stroke="black" stroke-width="1" points="249.5,94.5 493.5,94.5"/>
+	<polygon fill="black" stroke-width="1" points="493.5,94.5 485.5,89.5 485.5,99.5"/>
+	<text x="333.5" y="115.5" font-family="Times New Roman" font-size="20">isDigit(c)</text>
+	<polygon stroke="black" stroke-width="1" points="552.843,88.254 696.157,57.746"/>
+	<polygon fill="black" stroke-width="1" points="696.157,57.746 687.292,54.521 689.374,64.302"/>
+	<text x="585.5" y="103.5" font-family="Times New Roman" font-size="20">!isDigit(c) return id back()</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 510.275,67.703 A 22.5,22.5 0 1 1 536.725,67.703"/>
+	<text x="485.5" y="17.5" font-family="Times New Roman" font-size="20">isDigit(c)</text>
+	<polygon fill="black" stroke-width="1" points="536.725,67.703 545.473,64.17 537.382,58.292"/>
+	<polygon stroke="black" stroke-width="1" points="248.961,100.16 747.039,195.84"/>
+	<polygon fill="black" stroke-width="1" points="747.039,195.84 740.126,189.421 738.239,199.241"/>
+	<text x="318.5" y="179.5" font-family="Times New Roman" font-size="20">isOperator(c) return operator</text>
+	<polygon stroke="black" stroke-width="1" points="242.297,114.001 611.703,429.999"/>
+	<polygon fill="black" stroke-width="1" points="611.703,429.999 608.874,420.999 602.374,428.598"/>
+	<text x="203.5" y="292.5" font-family="Times New Roman" font-size="20">isBundler(c) return bundler</text>
+	<polygon stroke="black" stroke-width="1" points="207.316,121.914 135.684,283.086"/>
+	<polygon fill="black" stroke-width="1" points="135.684,283.086 143.502,277.806 134.364,273.744"/>
+	<text x="68.5" y="198.5" font-family="Times New Roman" font-size="20">isLetterE(c)</text>
+	<polygon stroke="black" stroke-width="1" points="123.5,340.5 123.5,400.5"/>
+	<polygon fill="black" stroke-width="1" points="123.5,400.5 128.5,392.5 118.5,392.5"/>
+	<text x="20.5" y="376.5" font-family="Times New Roman" font-size="20">isLetterX(c)</text>
+	<polygon stroke="black" stroke-width="1" points="149.133,446.087 245.867,504.913"/>
+	<polygon fill="black" stroke-width="1" points="245.867,504.913 241.63,496.484 236.434,505.028"/>
+	<text x="11.5" y="496.5" font-family="Times New Roman" font-size="20">isLetterP(c) return exp</text>
+	<polygon stroke="black" stroke-width="1" points="189.5,94.5 76.5,94.5"/>
+	<polygon fill="black" stroke-width="1" points="76.5,94.5 84.5,99.5 84.5,89.5"/>
+	<text x="81.5" y="85.5" font-family="Times New Roman" font-size="20">!isLetterE(c)</text>
+</svg>
