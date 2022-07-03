@@ -19,7 +19,7 @@
 
         }
 
-        
+
     }
 
     public Token nextToken()
@@ -75,13 +75,23 @@
                     }
                     break;
                 case 1:
-                    if (!isDigit(currentChar))
+                    if (!isDigit(currentChar) && !isDot(currentChar))
                     {
                         state = 0;
                         token = new Token() { Content = buffer, Type = Token.TypeToken.Identifier };
                         clearBuffer();
                         goBack();
                         return token;
+                    }
+                    else if (isDot(currentChar))
+                    {
+                        state = 7;
+                        buffer += currentChar;
+                    }
+                    else if (isDigit(currentChar))
+                    {
+                        state = 1;
+                        buffer += currentChar;
                     }
                     break;
                 case 2:
@@ -118,10 +128,22 @@
                 case 6:
                     state = 0;
                     break;
+                case 7:
+                    if (isDigit(currentChar))
+                    {
+                        state = 1;
+                        buffer += currentChar;
+                    }
+                    else
+                    {
+                        throw new Exception("Unexpected token");
+                    }
+
+                    break;
             }
         }
     }
-    
+
     private bool isDigit(char c)
     {
         return (c >= '0' && c <= '9');
@@ -131,12 +153,12 @@
     {
         return (c == 'E' || c == 'e');
     }
-    
+
     private bool isLetterX(char c)
     {
         return (c == 'X' || c == 'x');
     }
-    
+
     private bool isLetterP(char c)
     {
         return (c == 'P' || c == 'p');
@@ -150,7 +172,7 @@
         };
         return (operators.Contains(c));
     }
-    
+
     private bool isBundler(char c)
     {
         var bundlers = new List<char>()
@@ -164,7 +186,12 @@
     {
         return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
     }
-    
+
+    private bool isDot(char c)
+    {
+        return c == '.';
+    }
+
     private bool isEOF()
     {
         return position == contentFile.Length;
