@@ -8,5 +8,6 @@
         Identifier = 1,
         Operator = 2,
         Bundler = 3,
+        LineBreak = 4,
     }
 }
