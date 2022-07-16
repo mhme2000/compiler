@@ -1,4 +1,6 @@
-﻿public class KeyHashtable
+﻿namespace CompilerApp;
+
+public class KeyHashtable
 {
     public KeyHashtable(string nonTerminalSymbol, string terminalSymbol)
     {
@@ -8,11 +10,11 @@
     private string NonTerminalSymbol { get; }
     private string TerminalSymbol { get; }
 
-    public override bool Equals(object? otherObject)
+    public override bool Equals(object? compareObject)
     {
-        if (otherObject is not KeyHashtable otherKey)
+        if (compareObject is not KeyHashtable compareKey)
             return false;
-        return NonTerminalSymbol == otherKey.NonTerminalSymbol && TerminalSymbol == otherKey.TerminalSymbol;
+        return NonTerminalSymbol == compareKey.NonTerminalSymbol && TerminalSymbol == compareKey.TerminalSymbol;
     }
 
     public override int GetHashCode()

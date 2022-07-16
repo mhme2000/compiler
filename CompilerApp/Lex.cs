@@ -1,199 +1,184 @@
-﻿public class Lex
+﻿namespace CompilerApp;
+
+public class Lex
 {
-    public char[] contentFile;
-    private int state;
-    public int position;
-    private string buffer = null;
+    public readonly char[] ContentFile = string.Empty.ToCharArray();
+    private string _buffer = string.Empty;
+    private int _state;
+    public int Position;
     public Lex(string inputFileName)
     {
         try
         {
             var currentDirectory = Environment.CurrentDirectory;
             var projectDirectory = Directory.GetParent(currentDirectory)?.Parent?.Parent?.FullName;
+            if (projectDirectory == null) return;
             var path = Path.Combine(projectDirectory, inputFileName);
-            contentFile = File.ReadAllText(path).ToCharArray();
-            Console.WriteLine(contentFile);
+            ContentFile = File.ReadAllText(path).ToCharArray();
         }
         catch (Exception ex)
         {
-
+            Console.WriteLine($"Error occured: {ex}");
         }
-
-
     }
 
-    public Token nextToken()
+    public Token NextToken()
     {
         Token token;
-        char currentChar;
-        if (isEOF())
+        if (IsEof())
         {
-            state = 0;
-            token = new Token() { Content = "$", Type = Token.TypeToken.LineBreak };
-            clearBuffer();
+            _state = 0;
+            token = new Token() { Content = "$", Type = Token.TypeToken.EndOfChain };
+            ClearBuffer();
             return token;
         }
 
-        state = 0;
+        _state = 0;
         while (true)
         {
-            if (isEOF())
+            if (IsEof())
             {
-                state = 0;
-                token = new Token() { Content = buffer, Type = Token.TypeToken.Identifier };
-                clearBuffer();
+                _state = 0;
+                token = new Token() { Content = _buffer, Type = Token.TypeToken.Identifier };
+                ClearBuffer();
                 return token;
             }
-            else
+            var currentChar = GoNext();
+            switch (_state)
             {
-                currentChar = goNext();
-                switch (state)
-                {
-                    case 0:
-                        if (isDigit(currentChar))
-                        {
-                            state = 1;
-                            buffer += currentChar;
-                        }
-                        else if (isOperator(currentChar))
-                        {
-                            state = 2;
-                            buffer += currentChar;
-                            token = new Token() { Content = buffer, Type = Token.TypeToken.Operator };
-                            clearBuffer();
-                            return token;
-                        }
-                        else if (isBundler(currentChar))
-                        {
-                            state = 3;
-                            buffer += currentChar;
-                            token = new Token() { Content = buffer, Type = Token.TypeToken.Bundler };
-                            clearBuffer();
-                            return token;
-                        }
-                        else if (isLetterE(currentChar))
-                        {
-                            state = 4;
-                            buffer += currentChar;
-                        }
-                        else if (isSpace(currentChar))
-                        {
-                            state = 0;
-                            clearBuffer();
-                        }
-                        else if (isLineBreak(currentChar))
-                        {
-                            state = 0;
-                            token = new Token() { Content = "$", Type = Token.TypeToken.LineBreak };
-                            clearBuffer();
-                            return token;
-                        }
-                        else
-                        {
-                            throw new Exception("Unexpected token");
-                        }
+                case 0:
+                    if (IsDigit(currentChar))
+                    {
+                        _state = 1;
+                        _buffer += currentChar;
+                    }
+                    else if (IsOperator(currentChar))
+                    {
+                        _state = 2;
+                        _buffer += currentChar;
+                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Operator };
+                        ClearBuffer();
+                        return token;
+                    }
+                    else if (IsBundler(currentChar))
+                    {
+                        _state = 3;
+                        _buffer += currentChar;
+                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Bundler };
+                        ClearBuffer();
+                        return token;
+                    }
+                    else if (IsLetterE(currentChar))
+                    {
+                        _state = 4;
+                        _buffer += currentChar;
+                    }
+                    else if (IsSpace(currentChar))
+                    {
+                        _state = 0;
+                        ClearBuffer();
+                    }
+                    else if (IsLineBreak(currentChar))
+                    {
+                        _state = 0;
+                        token = new Token() { Content = currentChar.ToString(), Type = Token.TypeToken.LineBreak };
+                        ClearBuffer();
+                        return token;
+                    }
+                    else
+                    {
+                        throw new Exception("Unexpected token");
+                    }
 
-                        break;
-                    case 1:
-                        if (!isDigit(currentChar) && !isDot(currentChar))
-                        {
-                            state = 0;
-                            token = new Token() { Content = buffer, Type = Token.TypeToken.Identifier };
-                            clearBuffer();
-                            goBack();
-                            return token;
-                        }
-                        else if (isDigit(currentChar))
-                        {
-                            state = 1;
-                            buffer += currentChar;
-                        }
+                    break;
+                case 1:
+                    if (!IsDigit(currentChar) && !IsDot(currentChar))
+                    {
+                        _state = 0;
+                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Identifier };
+                        ClearBuffer();
+                        GoBack();
+                        return token;
+                    }
+                    else if (IsDigit(currentChar))
+                    {
+                        _state = 1;
+                        _buffer += currentChar;
+                    }
 
-                        else if (isDot(currentChar) && !buffer.Contains('.'))
-                        {
-                            state = 7;
-                            buffer += currentChar;
-                        }
-                        else if (buffer.Contains('.'))
-                        {
-                            throw new Exception("Unexpected token");
-                        }
-
-                        break;
-                    case 2:
-                        state = 0;
-                        break;
-                    case 3:
-                        state = 0;
-                        break;
-                    case 4:
-                        if (!isLetterX(currentChar))
-                        {
-                            throw new Exception("Unexpected token");
-                        }
-                        else
-                        {
-                            state = 5;
-                            buffer += currentChar;
-                        }
-
-                        break;
-                    case 5:
-                        if (!isLetterP(currentChar))
-                        {
-                            throw new Exception("Unexpected token");
-                        }
-                        else
-                        {
-                            state = 6;
-                            buffer += currentChar;
-                            token = new Token() { Content = buffer, Type = Token.TypeToken.Operator };
-                            clearBuffer();
-                            return token;
-                        }
-
-                        break;
-                    case 6:
-                        state = 0;
-                        break;
-                    case 7:
-                        if (isDigit(currentChar))
-                        {
-                            state = 1;
-                            buffer += currentChar;
-                        }
-                        else
-                        {
-                            throw new Exception("Unexpected token");
-                        }
-
-                        break;
-                }
+                    else if (IsDot(currentChar) && !_buffer.Contains('.'))
+                    {
+                        _state = 7;
+                        _buffer += currentChar;
+                    }
+                    else if (_buffer.Contains('.'))
+                    {
+                        throw new Exception("Unexpected token");
+                    }
+                    break;
+                case 2:
+                    _state = 0;
+                    break;
+                case 3:
+                    _state = 0;
+                    break;
+                case 4:
+                    if (!IsLetterX(currentChar))
+                    {
+                        throw new Exception("Unexpected token");
+                    }
+                    _state = 5;
+                    _buffer += currentChar;
+                    break;
+                case 5:
+                    if (!IsLetterP(currentChar))
+                    {
+                        throw new Exception("Unexpected token");
+                    }
+                    _state = 6;
+                    _buffer += currentChar;
+                    token = new Token() { Content = _buffer, Type = Token.TypeToken.Operator };
+                    ClearBuffer();
+                    return token;
+                case 6:
+                    _state = 0;
+                    break;
+                case 7:
+                    if (IsDigit(currentChar))
+                    {
+                        _state = 1;
+                        _buffer += currentChar;
+                    }
+                    else
+                    {
+                        throw new Exception("Unexpected token");
+                    }
+                    break;
             }
         }
     }
 
-    private bool isDigit(char c)
+    private static bool IsDigit(char c)
     {
         return (c >= '0' && c <= '9');
     }
 
-    private bool isLetterE(char c)
+    private static bool IsLetterE(char c)
     {
         return (c == 'E' || c == 'e');
     }
 
-    private bool isLetterX(char c)
+    private static bool IsLetterX(char c)
     {
         return (c == 'X' || c == 'x');
     }
 
-    private bool isLetterP(char c)
+    private static bool IsLetterP(char c)
     {
         return (c == 'P' || c == 'p');
     }
 
-    private bool isOperator(char c)
+    private static bool IsOperator(char c)
     {
         var operators = new List<char>()
         {
@@ -202,7 +187,7 @@
         return (operators.Contains(c));
     }
 
-    private bool isBundler(char c)
+    private static bool IsBundler(char c)
     {
         var bundlers = new List<char>()
         {
@@ -211,38 +196,38 @@
         return (bundlers.Contains(c));
     }
 
-    private bool isSpace(char c)
+    private static bool IsSpace(char c)
     {
         return c == ' ' || c == '\t' || c == '\r';
     }
 
-    private bool isLineBreak(char c)
+    private static bool IsLineBreak(char c)
     {
         return c == '\n' ;
     }
 
-    private bool isDot(char c)
+    private static bool IsDot(char c)
     {
         return c == '.';
     }
 
-    private bool isEOF()
+    private bool IsEof()
     {
-        return position == contentFile.Length;
+        return Position == ContentFile.Length;
     }
 
-    private char goNext()
+    private char GoNext()
     {
-        return contentFile[position++];
+        return ContentFile[Position++];
     }
 
-    private void goBack()
+    private void GoBack()
     {
-        position--;
+        Position--;
     }
 
-    private void clearBuffer()
+    private void ClearBuffer()
     {
-        buffer = null;
+        _buffer = string.Empty;
     }
 }

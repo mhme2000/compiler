@@ -1,9 +1,11 @@
-﻿public class Program
+﻿using CompilerApp;
+
+public class Program
 {
     private static void Main(string[] args)
     {
-        Console.WriteLine("Começou");
-        Syntax.Check();
+        Console.WriteLine("Starting compiler...");
+        Syntatic.Check();
     }
     // private static void Main(string[] args)
     // {
@@ -17,6 +19,6 @@
     //         {
     //             Console.WriteLine(token.Content + "-" + token.Type);
     //         }
-    //     } while (token != null);
+    //     } while (token != null && token.Content != "$");
     // }
 }

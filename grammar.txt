@@ -1,0 +1,14 @@
+//Original grammar
+<E> -> <E>+<T> | <E>-<T> | <T>
+<T> -> <T>*<P> | <T>/<P> | <P>
+<P> -> <P>^<F> | exp[<F>] | <F>
+<F> -> (<E>) | id
+
+//Grammar without left recursion
+<E> -> <T><E'>
+<E'> -> +<T><E'> | -<T><E'> | &
+<T> -> <P><T'>
+<T'> -> *<P><T'> | /<P><T'> | &
+<P> -> <F><P'> | exp[<F>]
+<P'> -> ^<F><P'>  | &
+<F> -> (<E>) | id
