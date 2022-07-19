@@ -28,7 +28,7 @@ public class Lex
         if (IsEof())
         {
             _state = 0;
-            token = new Token() { Content = "$", Type = Token.TypeToken.EndOfChain };
+            token = new Token() { Content = "$", Type = EnumTypeToken.EndOfChain };
             ClearBuffer();
             return token;
         }
@@ -39,7 +39,7 @@ public class Lex
             if (IsEof())
             {
                 _state = 0;
-                token = new Token() { Content = _buffer, Type = Token.TypeToken.Identifier };
+                token = new Token() { Content = _buffer, Type = EnumTypeToken.Identifier };
                 ClearBuffer();
                 return token;
             }
@@ -56,7 +56,7 @@ public class Lex
                     {
                         _state = 2;
                         _buffer += currentChar;
-                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Operator };
+                        token = new Token() { Content = _buffer, Type = EnumTypeToken.Operator };
                         ClearBuffer();
                         return token;
                     }
@@ -64,7 +64,7 @@ public class Lex
                     {
                         _state = 3;
                         _buffer += currentChar;
-                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Bundler };
+                        token = new Token() { Content = _buffer, Type = EnumTypeToken.Bundler };
                         ClearBuffer();
                         return token;
                     }
@@ -81,7 +81,7 @@ public class Lex
                     else if (IsLineBreak(currentChar))
                     {
                         _state = 0;
-                        token = new Token() { Content = currentChar.ToString(), Type = Token.TypeToken.LineBreak };
+                        token = new Token() { Content = currentChar.ToString(), Type = EnumTypeToken.LineBreak };
                         ClearBuffer();
                         return token;
                     }
@@ -95,7 +95,7 @@ public class Lex
                     if (!IsDigit(currentChar) && !IsDot(currentChar))
                     {
                         _state = 0;
-                        token = new Token() { Content = _buffer, Type = Token.TypeToken.Identifier };
+                        token = new Token() { Content = _buffer, Type = EnumTypeToken.Identifier };
                         ClearBuffer();
                         GoBack();
                         return token;
@@ -137,7 +137,7 @@ public class Lex
                     }
                     _state = 6;
                     _buffer += currentChar;
-                    token = new Token() { Content = _buffer, Type = Token.TypeToken.Operator };
+                    token = new Token() { Content = _buffer, Type = EnumTypeToken.Operator };
                     ClearBuffer();
                     return token;
                 case 6:
