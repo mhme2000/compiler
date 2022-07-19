@@ -213,15 +213,18 @@ public sealed class Syntactic
             
             if (token.Type == EnumTypeToken.LineBreak)
             {
-                Console.WriteLine(Calculate(expression));
-                expression.Clear();
-                stack.Push(new StackItem()
+                if (expression.Count > 0)
                 {
-                    Content = "E",
-                    Level = 0,
-                });
-                tokenPosition = -1;
-                lineOfCode++;
+                    Console.WriteLine(Calculate(expression));
+                    expression.Clear();
+                    stack.Push(new StackItem()
+                    {
+                        Content = "E",
+                        Level = 0,
+                    });
+                    tokenPosition = -1;
+                    lineOfCode++;
+                }
                 token = _lexScanner.NextToken();
             }
             else if (stack.Peek().Content == symbolInExpression)
