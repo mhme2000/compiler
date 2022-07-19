@@ -1,5 +1,4 @@
 ﻿namespace CompilerApp;
-
 public enum EnumTypeToken 
 {
     Identifier = 1,

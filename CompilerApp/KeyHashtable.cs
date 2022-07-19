@@ -1,5 +1,4 @@
 ﻿namespace CompilerApp;
-
 public class KeyHashtable
 {
     public KeyHashtable(string nonTerminalSymbol, string terminalSymbol)

@@ -1,11 +1,88 @@
 ﻿namespace CompilerApp;
-
 public class Lex
 {
+    #region variables
     public readonly char[] ContentFile = string.Empty.ToCharArray();
     private string _buffer = string.Empty;
     private int _state;
     public int Position;
+    #endregion
+    
+    #region private_methods
+    private static bool IsDigit(char c)
+    {
+        return (c >= '0' && c <= '9');
+    }
+
+    private static bool IsLetterE(char c)
+    {
+        return (c == 'E' || c == 'e');
+    }
+
+    private static bool IsLetterX(char c)
+    {
+        return (c == 'X' || c == 'x');
+    }
+
+    private static bool IsLetterP(char c)
+    {
+        return (c == 'P' || c == 'p');
+    }
+
+    private static bool IsOperator(char c)
+    {
+        var operators = new List<char>()
+        {
+            '+', '-', '/', '*', '^'
+        };
+        return (operators.Contains(c));
+    }
+
+    private static bool IsBundler(char c)
+    {
+        var bundlers = new List<char>()
+        {
+            '(', ')', '[', ']'
+        };
+        return (bundlers.Contains(c));
+    }
+
+    private static bool IsSpace(char c)
+    {
+        return c == ' ' || c == '\t' || c == '\r';
+    }
+
+    private static bool IsLineBreak(char c)
+    {
+        return c == '\n';
+    }
+
+    private static bool IsDot(char c)
+    {
+        return c == '.';
+    }
+
+    private bool IsEof()
+    {
+        return Position == ContentFile.Length;
+    }
+
+    private char GoNext()
+    {
+        return ContentFile[Position++];
+    }
+
+    private void GoBack()
+    {
+        Position--;
+    }
+
+    private void ClearBuffer()
+    {
+        _buffer = string.Empty;
+    }
+    #endregion
+    
     public Lex(string inputFileName)
     {
         try
@@ -16,9 +93,9 @@ public class Lex
             var path = Path.Combine(projectDirectory, inputFileName);
             ContentFile = File.ReadAllText(path).ToCharArray();
         }
-        catch (Exception ex)
+        catch (IOException e)
         {
-            Console.WriteLine($"Error occured: {ex}");
+            Console.WriteLine(e.Message);
         }
     }
 
@@ -156,78 +233,5 @@ public class Lex
                     break;
             }
         }
-    }
-
-    private static bool IsDigit(char c)
-    {
-        return (c >= '0' && c <= '9');
-    }
-
-    private static bool IsLetterE(char c)
-    {
-        return (c == 'E' || c == 'e');
-    }
-
-    private static bool IsLetterX(char c)
-    {
-        return (c == 'X' || c == 'x');
-    }
-
-    private static bool IsLetterP(char c)
-    {
-        return (c == 'P' || c == 'p');
-    }
-
-    private static bool IsOperator(char c)
-    {
-        var operators = new List<char>()
-        {
-            '+', '-', '/', '*', '^'
-        };
-        return (operators.Contains(c));
-    }
-
-    private static bool IsBundler(char c)
-    {
-        var bundlers = new List<char>()
-        {
-            '(', ')', '[', ']'
-        };
-        return (bundlers.Contains(c));
-    }
-
-    private static bool IsSpace(char c)
-    {
-        return c == ' ' || c == '\t' || c == '\r';
-    }
-
-    private static bool IsLineBreak(char c)
-    {
-        return c == '\n' ;
-    }
-
-    private static bool IsDot(char c)
-    {
-        return c == '.';
-    }
-
-    private bool IsEof()
-    {
-        return Position == ContentFile.Length;
-    }
-
-    private char GoNext()
-    {
-        return ContentFile[Position++];
-    }
-
-    private void GoBack()
-    {
-        Position--;
-    }
-
-    private void ClearBuffer()
-    {
-        _buffer = string.Empty;
     }
 }

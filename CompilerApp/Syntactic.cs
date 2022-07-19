@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using System.Globalization;
 
 namespace CompilerApp;
-
-public class Syntactic
+public sealed class Syntactic
 {
-    private static readonly Lex Tokenizer = new("input.txt");
+    #region private_variables
+    private static Lex _lexScanner = null!;
 
     private static readonly Hashtable HashtableSyntactic = new()
     {
@@ -93,44 +94,109 @@ public class Syntactic
         { new KeyHashtable("F", "id"), "id" },
         { new KeyHashtable("F", "$"), null }
     };
-
-    private static readonly List<string> NonTerminals = new()
-    {
-        "E", "L", "T", "TL", "P", "PL", "F"
-    };
-
+    
     private static readonly List<string> Terminals = new()
     {
         "+", "-", "*", "/", "exp", "[", "]", "^", "(", ")", "id", "$"
     };
-
-    private double ResolveExpression(string operating1, string operator1, string operating2 = null)
+    #endregion
+    
+    #region private_methods
+    private static double ResolveExpression(string operating1, string operator1, string? operating2 = null)
     {
-        switch (operator1)
+        return operator1 switch
         {
-            case "+":
-                return Convert.ToDouble(operating1) + Convert.ToDouble(operating2);
-            case "-":
-                return Convert.ToDouble(operating1) - Convert.ToDouble(operating2);
-            case "*":
-                return Convert.ToDouble(operating1) * Convert.ToDouble(operating2);
-            case "/":
-                return Convert.ToDouble(operating1) / Convert.ToDouble(operating2);
-            case "^":
-                return Math.Pow(Convert.ToDouble(operating1), Convert.ToDouble(operating2));
-            case "exp":
-                return Math.Exp(Convert.ToDouble(operating1));
-        }
-
-        return double.Epsilon;
+            "+" => Convert.ToDouble(operating1) + Convert.ToDouble(operating2),
+            "-" => Convert.ToDouble(operating1) - Convert.ToDouble(operating2),
+            "*" => Convert.ToDouble(operating1) * Convert.ToDouble(operating2),
+            "/" => Convert.ToDouble(operating1) / Convert.ToDouble(operating2),
+            "^" => Math.Pow(Convert.ToDouble(operating1), Convert.ToDouble(operating2)),
+            "exp" => Math.Exp(Convert.ToDouble(operating1)),
+            _ => double.NaN
+        };
     }
-
-    public void Check()
+    private static string Calculate(List<ExpressionItem> expressionForCalculate)
     {
-        var expression = new List<StackItem>() { };
-        var numberToken = -1;
+        var maxLevel = expressionForCalculate.Max(t => t.Level);
+        for (var currentLevel = maxLevel; currentLevel >= 0; currentLevel--)
+        {
+            if (expressionForCalculate.Count == 1)
+            {
+                return expressionForCalculate[0].Value;
+            }
+
+            var quantityOperatorsInCurrentLevel = expressionForCalculate
+                .FindAll(t => t.Level == currentLevel && t.Type == EnumTypeToken.Operator).Count;
+            if (quantityOperatorsInCurrentLevel == 0) continue;
+            var operatorsInCurrentLevel = expressionForCalculate
+                .FindAll(t => t.Level == currentLevel && t.Type == EnumTypeToken.Operator);
+            foreach (var currentOperator in operatorsInCurrentLevel)
+            {
+                var positionOperator = expressionForCalculate.FindIndex(t => t.Id == currentOperator.Id);
+                if (currentOperator.Value == "exp")
+                {
+                    var result = ResolveExpression(expressionForCalculate[positionOperator + 1].Value,
+                        expressionForCalculate[positionOperator].Value);
+                    expressionForCalculate.RemoveAt(positionOperator + 1);
+                    expressionForCalculate[positionOperator] = new ExpressionItem()
+                    {
+                        Id = Guid.NewGuid(),
+                        Value = result.ToString(CultureInfo.InvariantCulture),
+                        Type = EnumTypeToken.Identifier
+                    };
+                }
+                else
+                {
+                    var result = ResolveExpression(expressionForCalculate[positionOperator - 1].Value,
+                        expressionForCalculate[positionOperator].Value,
+                        expressionForCalculate[positionOperator + 1].Value);
+                    expressionForCalculate.RemoveRange(positionOperator - 1, 2);
+                    expressionForCalculate[positionOperator - 1] = new ExpressionItem()
+                    {
+                        Id = Guid.NewGuid(),
+                        Value = result.ToString(CultureInfo.InvariantCulture),
+                        Type = EnumTypeToken.Identifier
+                    };
+                }
+
+            }
+        }
+        return string.Empty;
+    }
+    
+    private static string? NextExpectedToken(EnumTypeToken currentSymbolType)
+    {
+        switch (currentSymbolType)
+        {
+            case EnumTypeToken.Identifier:
+                return "'operator' or ')' or ']' or 'LineBreak' or 'EndChain'";
+            case EnumTypeToken.Operator:
+                return "'Identifier' or '(' or '[' or 'exp'";
+            case EnumTypeToken.Bundler:
+                return "'Identifier' or 'operator'";
+            case EnumTypeToken.LineBreak:
+                return "'Identifier' or '(' or 'exp'";
+            case EnumTypeToken.EndOfChain:
+                return null;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(currentSymbolType), currentSymbolType, null);
+        }
+    }
+    #endregion
+    
+    public Syntactic(string inputFileName)
+    {
+        _lexScanner = new Lex(inputFileName);
+    }
+    
+    public void CheckSyntax()
+    {
+        var expression = new List<ExpressionItem>();
+        var tokenPosition = -1;
         var stack = new Stack<StackItem>();
-        var symbol = Tokenizer.NextToken();
+        var token = _lexScanner.NextToken();
+        var nextExpectedToken = NextExpectedToken(token.Type);
+        var lineOfCode = 1;
         stack.Push(new StackItem()
         {
             Content = "$",
@@ -141,10 +207,11 @@ public class Syntactic
             Content = "E",
             Level = 0,
         });
-        while (stack.Peek().Content != "$" || symbol.Type != EnumTypeToken.EndOfChain)
+        while (stack.Peek().Content != "$" || token.Type != EnumTypeToken.EndOfChain)
         {
-            var symbolInExpression = symbol.Type == EnumTypeToken.Identifier ? "id" : symbol.Content;
-            if (symbol.Type == EnumTypeToken.LineBreak)
+            var symbolInExpression = token.Type == EnumTypeToken.Identifier ? "id" : token.Content;
+            
+            if (token.Type == EnumTypeToken.LineBreak)
             {
                 Console.WriteLine(Calculate(expression));
                 expression.Clear();
@@ -153,34 +220,35 @@ public class Syntactic
                     Content = "E",
                     Level = 0,
                 });
-                numberToken = -1;
-                symbol = Tokenizer.NextToken();
+                tokenPosition = -1;
+                lineOfCode++;
+                token = _lexScanner.NextToken();
             }
             else if (stack.Peek().Content == symbolInExpression)
             {
-                if (symbol.Type == EnumTypeToken.Identifier || symbol.Type == EnumTypeToken.Operator)
+                if (token.Type == EnumTypeToken.Identifier || token.Type == EnumTypeToken.Operator)
                 {
-                    expression.Add(new StackItem()
+                    expression.Add(new ExpressionItem()
                     {
                         Id = Guid.NewGuid(),
-                        Content = symbol.Content,
+                        Value = token.Content,
                         Level = stack.Peek().Level,
-                        Type = symbol.Type
+                        Type = token.Type
                     });
-                    numberToken++;
+                    tokenPosition++;
                 }
 
                 stack.Pop();
-                symbol = Tokenizer.NextToken();
+                token = _lexScanner.NextToken();
             }
             else if (Terminals.Contains(stack.Peek().Content))
             {
-                throw new Exception("Syntax Error");
+                throw new Exception($"Syntactic Error in line {lineOfCode}, '{stack.Peek().Content}' was expected, but found '{token.Content}'");
             }
             else
             {
                 var rules = HashtableSyntactic[new KeyHashtable(stack.Peek().Content, symbolInExpression)];
-                if (rules == null) throw new Exception("Syntax Error");
+                if (rules == null) throw new Exception($"Syntactic Error in line {lineOfCode}, {nextExpectedToken} was expected, but found '{token.Content}'");
                 var fatherLevel = stack.Peek().Level;
                 stack.Pop();
                 var rulesSeparated = rules.ToString()?.Split(' ');
@@ -197,82 +265,21 @@ public class Syntactic
                     }
                     else
                     {
-                        if (symbol.Content != "$" || stack.Peek().Content != "$")
+                        if (token.Content != "$" || stack.Peek().Content != "$")
                         {
-                            expression[numberToken].Level -= 1;
+                            expression[tokenPosition].Level -= 1;
                         }
-
                     }
                 }
             }
         }
 
-        if (Tokenizer.Position < Tokenizer.ContentFile.Length)
+        if (_lexScanner.Position < _lexScanner.ContentFile.Length)
         {
-            throw new Exception("Syntax Error");
+            throw new Exception($"Syntactic Error in line {lineOfCode}, {nextExpectedToken} was expected, but found '{token.Content}'");
         }
 
         Console.WriteLine(Calculate(expression));
         Console.WriteLine("Build success!");
-    }
-
-    private string Calculate(List<StackItem> expressionForCalculate)
-    {
-        var maxLevel = expressionForCalculate.Max(t => t.Level);
-        var listRemove = new List<string>
-        {
-            "(", ")", "[", "]"
-        };
-        expressionForCalculate.RemoveAll(t => listRemove.Contains(t.Content));
-        for (var actualLevel = maxLevel; actualLevel >= 0; actualLevel--)
-        {
-            if (expressionForCalculate.Count == 1)
-            {
-                return expressionForCalculate[0].Content;
-            }
-            else
-            {
-                var quantityOperatorsInActualLevel = expressionForCalculate
-                    .FindAll(t => t.Level == actualLevel && t.Type == EnumTypeToken.Operator).Count;
-                if (quantityOperatorsInActualLevel == 0) continue;
-                else
-                {
-                    var operatorsInActualLevel = expressionForCalculate
-                        .FindAll(t => t.Level == actualLevel && t.Type == EnumTypeToken.Operator);
-                    foreach (var actualOperator in operatorsInActualLevel)
-                    {
-                        var positionOperator = expressionForCalculate.FindIndex(t => t.Id == actualOperator.Id);
-                        if (actualOperator.Content == "exp")
-                        {
-                            var result = ResolveExpression(expressionForCalculate[positionOperator + 1].Content,
-                                expressionForCalculate[positionOperator].Content);
-                            expressionForCalculate.RemoveAt(positionOperator + 1);
-                            expressionForCalculate[positionOperator] = new StackItem()
-                            {
-                                Id = Guid.NewGuid(),
-                                Content = result.ToString(),
-                                Type = EnumTypeToken.Identifier
-                            };
-                        }
-                        else
-                        {
-                            var result = ResolveExpression(expressionForCalculate[positionOperator - 1].Content,
-                                expressionForCalculate[positionOperator].Content,
-                                expressionForCalculate[positionOperator + 1].Content);
-                            expressionForCalculate.RemoveRange(positionOperator - 1, 2);
-                            expressionForCalculate[positionOperator - 1] = new StackItem()
-                            {
-                                Id = Guid.NewGuid(),
-                                Content = result.ToString(),
-                                Type = EnumTypeToken.Identifier
-                            };
-                        }
-
-                    }
-                }
-            }
-        }
-
-        return "";
     }
 }
