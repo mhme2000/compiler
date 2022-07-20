@@ -2,7 +2,7 @@
 public class Lex
 {
     #region variables
-    public readonly char[] ContentFile = string.Empty.ToCharArray();
+    public readonly char[] ContentFile;
     private string _buffer = string.Empty;
     private int _state;
     public int Position;
@@ -87,16 +87,14 @@ public class Lex
     {
         try
         {
-            var currentDirectory = Environment.CurrentDirectory;
-            var projectDirectory = Directory.GetParent(currentDirectory)?.Parent?.Parent?.FullName;
-            if (projectDirectory == null) return;
-            var path = Path.Combine(projectDirectory, inputFileName);
-            ContentFile = File.ReadAllText(path).ToCharArray();
+            using var sr = new StreamReader(inputFileName);
+            ContentFile = sr.ReadToEnd().ToCharArray();
         }
         catch (IOException e)
         {
             Console.WriteLine(e.Message);
         }
+        ContentFile = File.ReadAllText(inputFileName).ToCharArray();
     }
 
     public Token NextToken()
@@ -177,7 +175,8 @@ public class Lex
                         GoBack();
                         return token;
                     }
-                    else if (IsDigit(currentChar))
+
+                    if (IsDigit(currentChar))
                     {
                         _state = 1;
                         _buffer += currentChar;

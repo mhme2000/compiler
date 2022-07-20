@@ -1,10 +1,11 @@
 ﻿namespace CompilerApp;
 public static class Program
 {
-    private static void Main()
+    private static void Main(string[] args)
     {
         Console.WriteLine("Starting compiler...");
-        var syntactic = new Syntactic("input.txt");
+        var fileName = args.Length > 0 ? args[0] : @"input.txt";
+        var syntactic = new Syntactic(fileName);
         syntactic.CheckSyntax();
     }
 }
